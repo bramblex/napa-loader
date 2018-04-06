@@ -1,0 +1,22 @@
+{
+  "name": "napa-loader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bramblex/napa-loader.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bramblex/napa-loader/issues"
+  },
+  "homepage": "https://github.com/bramblex/napa-loader#readme",
+  "dependencies": {
+    "napajs": "^0.2.1"
+  }
+}
