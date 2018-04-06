@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/bramblex/napa-loader.git"
   },
-  "author": "",
+  "author": "bramblex <qjnight@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bramblex/napa-loader/issues"

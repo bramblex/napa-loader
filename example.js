@@ -1,14 +1,7 @@
-# napa-loader
 
-基于 napajs 多线程库的一个封装，使得能够更好更方便的在工程中使用 napajs 进行运算密集型任务。
-
-# 用法
-
-```JavaScript
-// example.js
 const path = require('path')
 const napa = require('napajs')
-const { load, warp } = require('napa-loader')
+const { load, warp } = require('./index')
 
 async function __main__() { 
 
@@ -43,4 +36,3 @@ async function __main__() {
 }
 
 __main__()
-```
