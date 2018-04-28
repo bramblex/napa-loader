@@ -1,9 +1,19 @@
 
 const path = require('path')
 const napa = require('napajs')
-const { load, warp } = require('./index')
+const { load, warp, zrequire } = require('./index')
 
 async function __main__() { 
+
+    // 用 zrequire 来包装模块
+    const { fib, getState, changeState } = await zrequire('./test/test-module', {
+        broadcast_funcs: ['changeState']
+    })
+
+    console.log(await fib(10))
+    console.log(await getState())
+    console.log(await changeState('changed'))
+    console.log(await getState())
 
     // 用 load(id, module_path, zone_setting) 加载启动模块
     const zone1 = await load(
@@ -33,6 +43,7 @@ async function __main__() {
     // 用 warp 来 包装
     const zone2 = warp(_z2)
     console.log(await zone2.execute('fib', [40]))
+
 }
 
 __main__()
