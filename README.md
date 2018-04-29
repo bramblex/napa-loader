@@ -10,9 +10,10 @@ npm install --save napa-loader
 
 see [test](https://github.com/bramblex/napa-loader/blob/master/test/test.js)
 
+### 1. Create a module
+
 ``` JavaScript
 // test-module.js
-
 let state = 'init'
 
 function changeState(_state) { state = _state }
@@ -25,9 +26,10 @@ function fib(n) {
     else return fib(n - 1) + fib(n - 2)
 }
 
-module.exports = { fib }
-
+module.exports = { fib, changeState, getState }
 ```
+
+### 2. Load module by `zrequire(<module_path>)`
 
 ``` JavaScript
 
