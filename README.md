@@ -1,46 +1,14 @@
-# napa-loader
+# Napa-Loader
 
-基于 napajs 多线程库的一个封装，使得能够更好更方便的在工程中使用 napajs 进行运算密集型任务。
+## Install
 
-# 用法
+```Bash
+npm install --save napa-loader
+```
 
-```JavaScript
-// example.js
-const path = require('path')
-const napa = require('napajs')
-const { load, warp } = require('napa-loader')
+## Usage
 
-async function __main__() { 
+see (test.js)[./test/test.js]
 
-    // 用 load(id, module_path, zone_setting) 加载启动模块
-    const zone1 = await load(
-        'test-load', 
-        path.join(__dirname, '/test/test-module'), 
-        { workers: 4 }
-    )
-
-    // 用 zone.execute(name, args?) 来调用方法
-    console.log(await zone1.execute('fib', [40]))
-
-    // 用 zone.broadcast(name, args?) 来调用会改变状态的方法
-    console.log(await zone1.execute('getState'))
-    await zone1.broadcast('changeState', ['changed'])
-    console.log(await zone1.execute('getState'))
-
-    // 用 warp 来封装现成的 zone
-    const _z2 = napa.zone.create('test-warp')
-    await _z2.broadcast(`
-        function fib(n) {
-            if (n === 0) return 0;
-            else if (n === 1) return 1;
-            else return fib(n - 1) + fib(n - 2)
-        }
-    `)
-
-    // 用 warp 来 包装
-    const zone2 = warp(_z2)
-    console.log(await zone2.execute('fib', [40]))
-}
-
-__main__()
+```
 ```

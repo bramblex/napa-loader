@@ -1,9 +1,9 @@
 
-// 为兼容更低版本的 node 所以才写成这样。。。
 var napa = require('napajs')
 var path = require('path')
 var fs = require('fs')
 
+// warp a napajs zone
 function zwarp(zone) {
   return ({
     zone: zone,
@@ -17,7 +17,7 @@ function zwarp(zone) {
       return new Promise(function (resolve, reject) {
         zone.execute(function (_name, _args) {
           var __args = _args ? _args : [];
-          return global[_name].apply(undefined, _args);
+          return global[_name].apply(undefined, __args);
         }, [name, args]).then(function (result) {
           resolve(result.value)
         }).catch(reject);
@@ -26,6 +26,7 @@ function zwarp(zone) {
   })
 }
 
+// load an module and wrapped by zwrap
 function zload(id, module_path, _opts) {
 
   var opts = _opts || {};
@@ -33,9 +34,11 @@ function zload(id, module_path, _opts) {
     = "eval((function () {"
     + "  var bootstrap_module_path = " + JSON.stringify(module_path) + ";"
     + "  var bootstrap_module;"
+
+    // get information when cashed
     + "  try { bootstrap_module = require(bootstrap_module_path); } "
-    + "  catch(err) {  bootstrap_module = { __error__: function() { return JSON.stringify(err); } } }"
-    + "  var broadcast = bootstrap_module.__broadcast__ || [];"
+    + "  catch(err) {  bootstrap_module = { __error__: function() { return JSON.stringify(err); } } }" 
+
     + "  var bootstrap_code = '';"
     + "  var func_names = [];"
     + "  for (var export_func_name in bootstrap_module) {"
@@ -47,7 +50,10 @@ function zload(id, module_path, _opts) {
     + "        + JSON.stringify(export_func_name) + '].apply(undefined, arguments); };\\n';"
     + "    }"
     + "  }"
+
+    // add an "__names__" function to get all exported function names
     + "  bootstrap_code += 'function __names__() { return ' + JSON.stringify(func_names) + ';} ';"
+
     + "  return bootstrap_code"
     + "})())"
     ;
@@ -55,12 +61,15 @@ function zload(id, module_path, _opts) {
   var zone = napa.zone.create(id, opts);
   return new Promise(function (resolve, reject) {
     var warped_zone;
+
+    // run code
     zone.broadcast(code)
       .then(function () {
         warped_zone = zwarp(zone);
         return warped_zone.execute('__names__');
       })
       .then(function(names){
+        // check no error
         if (names.indexOf('__error__') >= 0) {
           warped_zone.execute('__error__').then(reject);
         } else {
@@ -78,6 +87,7 @@ function zrequire(_module_path, _opts) {
   var broadcast_funcs = opts.broadcast_funcs;
   delete opts.broadcast_funcs;
 
+  // parse module_path
   var module_path;
   if (path.isAbsolute(_module_path) || _module_path[0] !== '.') {
     module_path = _module_path;
@@ -86,8 +96,9 @@ function zrequire(_module_path, _opts) {
     module_path = path.join(path.dirname(caller_path), _module_path);
   }
 
+  // cache module
   if (cache[module_path]) {
-    return new Promise.resolve(cache[module_path]);
+    return Promise.resolve(cache[module_path]);
   }
   
   return new Promise(function (resolve, reject) {
@@ -100,6 +111,8 @@ function zrequire(_module_path, _opts) {
       .then(function (func_names) {
         var zone_module = {};
         zone_module.__zone__ = zone;
+
+        // create module interface
         func_names.forEach(function (name) {
           if (broadcast_funcs.indexOf(name) >= 0) {
             zone_module[name] = function () {
@@ -120,8 +133,11 @@ function zrequire(_module_path, _opts) {
   });
 }
 
+// for compatible with version 1.0
 exports.load = zload
 exports.warp = zwarp
+
+// export functions
 exports.zload = zload
 exports.zwarp = zwarp
 exports.zrequire = zrequire

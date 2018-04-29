@@ -15,4 +15,8 @@ function fib(n) {
     else return fib(n - 1) + fib(n - 2)
 }
 
-module.exports = { fib, changeState, getState }
+function fib2(n1, n2) {
+    return [fib(n1), fib(n2)]
+}
+
+module.exports = { fib, changeState, getState, fib2 }

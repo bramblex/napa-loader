@@ -1,28 +1,53 @@
 
 const assert = require('assert')
-const { load } = require('../index')
+const { load, zrequire } = require('../index')
 const path = require('path')
 
 async function __main__() {
-    // 装在模块
-    const zone = await load('test-module', path.join(__dirname, './test-module'))
 
-    // 测试 execute 方法
-    assert.strictEqual(await zone.execute('getState'), 'init')
+    // load an custom module
+    const test_module_sync = require('./test-module')
+    const test_module_async = await zrequire('./test-module', { broadcast_funcs: ['changeState'] })
 
-    // 测试 broadcast 方法
-    await zone.broadcast('changeState', ['changed'])
-    assert.strictEqual(await zone.execute('getState'), 'changed')
+    // test module cache
+    assert(test_module_async === await zrequire('../test/test-module'))
 
-    // 测试复杂状态
-    const complex_state = { aaa: 'bbb', ccc: 'ddd', eee: [1, 2, 3, 'adf'], asd: null, xvd: { v2: 123 } }
-    await zone.broadcast('changeState', [complex_state])
-    assert.deepStrictEqual(await zone.execute('getState'), complex_state)
+    // test if all functions auto exported
+    assert.deepStrictEqual(
+        Object.keys(test_module_sync).filter(name => typeof test_module_sync[name] === 'function'),
+        Object.keys(test_module_async).filter(name => name !== '__zone__')
+    )
 
-    // 测试运算
-    assert.strictEqual(await zone.execute('fib', [40]), 102334155)
+    // test exported function
+    assert.strictEqual(test_module_sync.fib(10), await test_module_async.fib(10))
 
-    console.log('All test case accessed!')
+    // test multi args
+    assert.deepStrictEqual(test_module_sync.fib2(10, 12), await test_module_async.fib2(10, 12))
+
+    // test 
+    assert.strictEqual(test_module_sync.getState(), await test_module_async.getState())
+    const state = { asf: 23324, waef: { asdf: true }, vcejk: null }
+    test_module_async.changeState(state)
+    assert.deepStrictEqual(state, await test_module_async.getState())
+
+    // Load an third-party modules module，such as Lodash
+    const lodash_sync = require('lodash')
+    const lodash_async = await zrequire('lodash')
+
+    // test module cache
+    assert(lodash_async === await zrequire('lodash'))
+
+    // test if all functions auto exported from lodash
+    assert.deepStrictEqual(
+        Object.keys(lodash_sync).filter(name => typeof lodash_sync[name] === 'function'),
+        Object.keys(lodash_async).filter(name => name !== '__zone__')
+    )
+
+    // test lodash
+    const test_data = [1,2,3,4,5,6,7,8,9,10]
+    assert.deepStrictEqual(lodash_sync.chunk(test_data), await lodash_async.chunk(test_data))
+
+    console.log('All test cases passed')
 }
 
 __main__()
