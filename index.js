@@ -2,6 +2,7 @@
 var napa = require('napajs')
 var path = require('path')
 var fs = require('fs')
+var callsites = require('callsites')
 
 // warp a napajs zone
 function zwarp(zone) {
@@ -92,7 +93,7 @@ function zrequire(_module_path, _opts) {
   if (path.isAbsolute(_module_path) || _module_path[0] !== '.') {
     module_path = _module_path;
   } else {
-    var caller_path = (new Error()).stack.split('\n')[2].match(/^\s+at\s+\S+\s+\((.+?):\d+:\d+\)$/)[1];
+    var caller_path = callsites()[1].getFileName()
     module_path = path.join(path.dirname(caller_path), _module_path);
   }
 

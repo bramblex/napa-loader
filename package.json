@@ -1,6 +1,6 @@
 {
   "name": "napa-loader",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/bramblex/napa-loader#readme",
   "dependencies": {
+    "callsites": "^2.0.0",
     "napajs": "^0.2.1"
   },
   "devDependencies": {
